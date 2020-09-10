@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CalcMol
 {
-    static class MyBoy
+    static class CalcMol
     {
-        public static double CalcMol(string input)
+        public static double CalculateMass(string input)
         {
             input = Translate(input);
             double result = 0;
