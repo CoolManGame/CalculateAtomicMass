@@ -7,12 +7,46 @@ namespace CalcMol
     {
         public static double CalculateMass(string input)
         {
+            input = input.Replace("He", "E").Replace("Li", "L").Replace("Be", "^").Replace("Ne", "+");
+            input = input.Replace("Na", "[").Replace("Mg", "]").Replace("Al", ".").Replace("Si", ",");
+            input = input.Replace("Cl", "!").Replace("Ar", "A").Replace("Ca", "G").Replace("Cr", "=");
+            input = input.Replace("Mn", "~").Replace("Fe", "`").Replace("Cu", "_").Replace("Zn", "Z");
+            input = input.Replace("Br", "{").Replace("Ag", "}").Replace("Ba", "|").Replace("Hg", "*");
+            input = input.Replace("Pb", "$");
+
             input = Translate(input);
             double result = 0;
-            Dictionary<char, int> hold = new Dictionary<char, int>();
-            hold.Add('C', 12);
-            hold.Add('H', 1);
-            hold.Add('O', 16);
+            Dictionary<char, double> hold = new Dictionary<char, double>();
+            hold.Add('C', 12); // C for Carbon (C)
+            hold.Add('H', 1);  // H for Hidro (H)
+            hold.Add('O', 16);  // O for Oxygen (O)
+            hold.Add('E', 4); // E for Helium (He)
+            hold.Add('L', 7); // L for Liti (Li)
+            hold.Add('^', 9); // ^ for Beri (Be)
+            hold.Add('B', 11); // B for Bo (B)
+            hold.Add('N', 14); // N for Nitrogen (N)
+            hold.Add('F', 19); // F for Flo (F)
+            hold.Add('+', 20); // + for Neon (Ne)
+            hold.Add('[', 23); // [ for Natri (Na)
+            hold.Add(']', 24); // ] for Magie (Mg)
+            hold.Add('.', 27); // . for Aluminum (Al)
+            hold.Add(',', 28); // , for Silicon (Si)
+            hold.Add('P', 31);  // P for Photpho (P)
+            hold.Add('S', 32);  // S for Sulfur (S)
+            hold.Add('!', 35.5);  // L for Clo (Cl)
+            hold.Add('A', 39.9); // A for Agon (Ar)
+            hold.Add('K', 39);  // K for Kali (K)
+            hold.Add('G', 40);  // G for Canxi (Ca)
+            hold.Add('=', 52);  // = for Chrome (Cr)
+            hold.Add('~', 55);  // ~ for Mangan (Mn)
+            hold.Add('`', 56); // ` for Iron (Fe)
+            hold.Add('_', 64); // _ for Bronze (Cu)
+            hold.Add('Z', 65);  // Z for Zinc (Zn)
+            hold.Add('{', 80);  // { for Brom (Br)
+            hold.Add('}', 108);  // } for Silver (Ag)
+            hold.Add('|', 137); // | for Bari (Ba)
+            hold.Add('*', 201); // * for Mercury (Hg);
+            hold.Add('$', 207); // $ for Lead (Pb);
 
             foreach (char c in input)
             {
