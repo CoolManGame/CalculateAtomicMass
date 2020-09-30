@@ -58,12 +58,22 @@ namespace Chemistree
 
         private static string Translate (string s)
         {
-            string[] parts = RemoveStartTrash(s.Split('('));
-
-            for (int i = 0; i < parts.Length; i++)
+            for (int i = 0; i < s.Length - 1; i++)
             {
-                if (parts[i].EndsWith(')')) { parts[i] += '1'; }
+                if (s[i] == ')' && Char.IsDigit(s[i + 1]))
+                {
+                    for (int j = i + 1; j < s.Length; j++)
+                    {
+                        if (!Char.IsDigit(s[j]))
+                        {
+                            s = s.Insert(j, "(");
+                            break;
+                        }
+                    }
+                }
             }
+
+            string[] parts = RemoveStartTrash(s.Split('('));
 
 
             string result = "";
@@ -102,7 +112,8 @@ namespace Chemistree
 
             string result = "";
 
-            string[] numbers = RemoveStartTrash(s.Split(new char[] { 'C', 'H', 'O' }));
+            string[] numbers = RemoveStartTrash(s.Split(new char[] { 'C', 'H', 'O', 'E', 'L', '^', 'B', 'N', 
+                'F', '+', '[', ']', '.', '.', 'P', 'S', '!', 'A', 'K', 'G', '=', '~', '`', '_', 'Z', '{', '}', '|', '*', '$'            }));
 
             for (int i = 0; i < s.Length; i++)
             {
