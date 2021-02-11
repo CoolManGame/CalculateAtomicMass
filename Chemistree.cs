@@ -5,8 +5,17 @@ namespace Chemistree
 {
     static class Chemistree
     {
-        public static double CalcMol(string input)
+        public static double CalcMol(this string input, Dictionary<string, double> data = null)
         {
+            Dictionary<string, char> ToDealWithCustomData = new Dictionary<string, char>();
+            ToDealWithCustomData.Add("He", 'E'); ToDealWithCustomData.Add("Li", 'L'); ToDealWithCustomData.Add("Be", '^');
+            ToDealWithCustomData.Add("Ne", '+'); ToDealWithCustomData.Add("Na", '['); ToDealWithCustomData.Add("Mg", ']');
+            ToDealWithCustomData.Add("Al", '.'); ToDealWithCustomData.Add("Si", ','); ToDealWithCustomData.Add("Cl", '!');
+            ToDealWithCustomData.Add("Ar", 'A'); ToDealWithCustomData.Add("Ca", 'G'); ToDealWithCustomData.Add("Cr", '=');
+            ToDealWithCustomData.Add("Mn", '~'); ToDealWithCustomData.Add("Fe", '`'); ToDealWithCustomData.Add("Cu", '_');
+            ToDealWithCustomData.Add("Zn", 'Z'); ToDealWithCustomData.Add("Br", '{'); ToDealWithCustomData.Add("Ag", '}');
+            ToDealWithCustomData.Add("Ba", '|'); ToDealWithCustomData.Add("Hg", '*'); ToDealWithCustomData.Add("Pb", '$');
+
             input = input.Replace("He", "E").Replace("Li", "L").Replace("Be", "^").Replace("Ne", "+");
             input = input.Replace("Na", "[").Replace("Mg", "]").Replace("Al", ".").Replace("Si", ",");
             input = input.Replace("Cl", "!").Replace("Ar", "A").Replace("Ca", "G").Replace("Cr", "=");
@@ -14,8 +23,6 @@ namespace Chemistree
             input = input.Replace("Br", "{").Replace("Ag", "}").Replace("Ba", "|").Replace("Hg", "*");
             input = input.Replace("Pb", "$");
 
-            input = Translate(input);
-            double result = 0;
             Dictionary<char, double> hold = new Dictionary<char, double>();
             hold.Add('C', 12); // C for Carbon (C)
             hold.Add('H', 1);  // H for Hidro (H)
@@ -48,114 +55,71 @@ namespace Chemistree
             hold.Add('*', 201); // * for Mercury (Hg);
             hold.Add('$', 207); // $ for Lead (Pb);
 
-            foreach (char c in input)
+            if (data != null) 
             {
-                result += hold[c];
-            }
+                foreach (var item in data)
+                {
+                    var Key = item.Key;
+                    var Val = item.Value;
 
-            return result;
+                    hold[ToDealWithCustomData[Key]] = Val;
+                }
+            }
+            
+
+            return CalculateHelper(input, hold);
         }
 
-        private static string Translate (string s)
+        public static double CalculateHelper(string s, Dictionary<char, double> hold)
         {
-            for (int i = 0; i < s.Length - 1; i++)
+            double res0 = 0;
+            List<char> list = new List<char>(s);
+            for (int i = 0; i < list.Count; i++)
             {
-                if (s[i] == ')' && Char.IsDigit(s[i + 1]))
+                if (!Char.IsDigit(list[i]) && list[i] != '(') // if it's an element
                 {
-                    for (int j = i + 1; j < s.Length; j++)
+                    string times = "";
+                    char element = list[i];
+                    times = "";
+                    for (int ei = i+1; ei < list.Count; ei++)
                     {
-                        if (!Char.IsDigit(s[j]))
+                        if (Char.IsDigit(list[ei])) { times += list[ei]; }
+                        else { break; }
+                    }
+
+                    res0 += hold[element] * int.Parse(times.Length != 0 ? times : "1");
+                    i += times.Length;
+                }
+
+                else if (list[i] == '(')
+                {
+                    int l = i;
+                    int r = i;
+                    int help = 1;
+
+                    while (true)
+                    {
+                        r++;
+                        if (list[r] == '(') { help++; }
+                        else if (list[r] == ')')
                         {
-                            s = s.Insert(j, "(");
-                            break;
+                            if (help == 1) { break; }
+                            else { help--; }
                         }
                     }
-                }
-            }
-
-            string[] parts = RemoveStartTrash(s.Split('('));
-
-
-            string result = "";
-
-            foreach (var part in parts)
-            {
-                result += Translate2(part);
-            }
-
-            result = Translate3(result);
-
-            return result;
-
-        }
-
-        private static string Translate2 (string s)
-        {
-            if (!s.Contains(')')) { return s; }
-
-            int multiply = int.Parse(s.Substring(s.IndexOf(')')+1));
-
-            string thePart = s.Substring(0, s.IndexOf(')'));
-            string result = "";
-
-            for (int i = 0; i < multiply; i++)
-            {
-                result += thePart;
-            }
-
-            return result;
-        }
-
-        private static string Translate3(string s)
-        {
-            int numberNum = 0;
-
-            string result = "";
-
-            string[] numbers = RemoveStartTrash(s.Split(new char[] { 'C', 'H', 'O', 'E', 'L', '^', 'B', 'N', 
-                'F', '+', '[', ']', '.', '.', 'P', 'S', '!', 'A', 'K', 'G', '=', '~', '`', '_', 'Z', '{', '}', '|', '*', '$'            }));
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (!Char.IsDigit(s[i])) { result += s[i]; }
-
-                else
-                {
-                    string number = numbers[numberNum];
-
-                    for (int j = 0; j < int.Parse(number)-1; j++)
+                    string times = "";
+                    for (int ei = r+1; ei < list.Count; ei++)
                     {
-                        result += s[i - 1];
+                        if (Char.IsDigit(list[ei])) { times += list[ei]; }
+                        else { break; }
                     }
 
-                    s = RemoveFirst(s, number);
-                    i--;
-
-                    numberNum++;
+                    res0 += CalculateHelper(string.Concat(list.GetRange(l + 1, r - l - 1)), hold) * (times.Length != 0 ? int.Parse(times) : 1);
+                    i = r + times.Length;
                 }
             }
 
-            return result;
-        }
-
-        private static string[] RemoveStartTrash(string[] s)
-        {
-            List<string> list = new List<string>();
-            list.AddRange(s);
-
-            for(int i = 0; i < list.Count; i++)
-            {
-                if (list[i].Equals("")) { list.Remove(""); i = -1; }
-            }
-
-            return list.ToArray();
-        }
-
-        private static string RemoveFirst(string input, string kill)
-        {
-            int index = input.IndexOf(kill);
-
-            return input.Remove(index, kill.Length);
+            return res0;
         }
     }
 }
