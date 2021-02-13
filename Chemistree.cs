@@ -73,17 +73,16 @@ namespace Chemistree
         public static double CalculateHelper(string s, Dictionary<char, double> hold)
         {
             double res0 = 0;
-            List<char> list = new List<char>(s);
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < s.Length; i++)
             {
-                if (!Char.IsDigit(list[i]) && list[i] != '(') // if it's an element
+                if (!Char.IsDigit(s[i]) && s[i] != '(') // if it's an element
                 {
                     string times = "";
-                    char element = list[i];
+                    char element = s[i];
                     times = "";
-                    for (int ei = i+1; ei < list.Count; ei++)
+                    for (int ei = i+1; ei < s.Length; ei++)
                     {
-                        if (Char.IsDigit(list[ei])) { times += list[ei]; }
+                        if (Char.IsDigit(s[ei])) { times += s[ei]; }
                         else { break; }
                     }
 
@@ -91,30 +90,29 @@ namespace Chemistree
                     i += times.Length;
                 }
 
-                else if (list[i] == '(')
+                else if (s[i] == '(')
                 {
-                    int l = i;
                     int r = i;
                     int help = 1;
 
                     while (true)
                     {
                         r++;
-                        if (list[r] == '(') { help++; }
-                        else if (list[r] == ')')
+                        if (s[r] == '(') { help++; }
+                        else if (s[r] == ')')
                         {
                             if (help == 1) { break; }
                             else { help--; }
                         }
                     }
                     string times = "";
-                    for (int ei = r+1; ei < list.Count; ei++)
+                    for (int ei = r+1; ei < s.Length; ei++)
                     {
-                        if (Char.IsDigit(list[ei])) { times += list[ei]; }
+                        if (Char.IsDigit(s[ei])) { times += s[ei]; }
                         else { break; }
                     }
 
-                    res0 += CalculateHelper(string.Concat(list.GetRange(l + 1, r - l - 1)), hold) * (times.Length != 0 ? int.Parse(times) : 1);
+                    res0 += CalculateHelper(s.Substring(i + 1, r - i - 1), hold) * (times.Length != 0 ? int.Parse(times) : 1);
                     i = r + times.Length;
                 }
             }
